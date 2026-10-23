@@ -1,0 +1,410 @@
+"use client";
+
+import Image from "next/image";
+import { useCallback, useEffect, useState } from "react";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
+import { type CustomerReview, type InstagramTrendItem } from "@/lib/api";
+import { getInstagramUrl, getMapsUrl } from "@/lib/studio-data";
+import { useBranch } from "@/components/branch/BranchProvider";
+
+function useAutoCarousel(itemCount: number, delay: number) {
+    const [autoplay] = useState(() =>
+        Autoplay({
+            delay,
+            playOnInit: itemCount > 1,
+            stopOnInteraction: false,
+            stopOnMouseEnter: false,
+        })
+    );
+
+    const [emblaRef, emblaApi] = useEmblaCarousel(
+        {
+            loop: itemCount > 1,
+            align: "start",
+            containScroll: false,
+            slidesToScroll: 1,
+        },
+        [autoplay]
+    );
+
+    const [selectedIndex, setSelectedIndex] = useState(0);
+
+    const syncSelectedIndex = useCallback(() => {
+        if (!emblaApi) return;
+        setSelectedIndex(emblaApi.selectedScrollSnap());
+    }, [emblaApi]);
+
+    useEffect(() => {
+        if (!emblaApi) return;
+
+        // Initial selectedIndex is 0, matching Embla's initial snap.
+        // Subsequent changes are synchronized through Embla's events.
+        emblaApi.on("select", syncSelectedIndex);
+        emblaApi.on("reInit", syncSelectedIndex);
+
+        const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const syncMotionPreference = () => {
+            if (reducedMotion.matches || itemCount <= 1) autoplay.stop();
+            else autoplay.play();
+        };
+
+        syncMotionPreference();
+        reducedMotion.addEventListener("change", syncMotionPreference);
+
+        return () => {
+            emblaApi.off("select", syncSelectedIndex);
+            emblaApi.off("reInit", syncSelectedIndex);
+            reducedMotion.removeEventListener("change", syncMotionPreference);
+            autoplay.stop();
+        };
+    }, [autoplay, emblaApi, itemCount, syncSelectedIndex]);
+
+    // Return a tuple so the callback ref is not grouped with React render state.
+    return [emblaRef, emblaApi, selectedIndex] as const;
+}
+
+function CarouselDots({
+    count,
+    selectedIndex,
+    onSelect,
+}: {
+    count: number;
+    selectedIndex: number;
+    onSelect: (index: number) => void;
+}) {
+    if (count <= 1) return null;
+
+    return (
+        <div className="mt-5 flex items-center justify-center gap-2.5" aria-label="Chọn nội dung">
+            {Array.from({ length: count }, (_, index) => (
+                <button
+                    key={index}
+                    type="button"
+                    aria-label={`Xem mục ${index + 1}`}
+                    aria-current={index === selectedIndex ? "true" : undefined}
+                    onClick={() => onSelect(index)}
+                    className={`focus-ring rounded-full transition-all duration-300 ${
+                        index === selectedIndex ? "h-2 w-7 bg-accent" : "size-2 bg-accent/30 hover:bg-accent/60"
+                    }`}
+                />
+            ))}
+        </div>
+    );
+}
+
+function HotTrendCard({ item, index }: { item: InstagramTrendItem; index: number }) {
+    const instagramPostUrl = item.instagram_url;
+
+    const card = (
+        <figure className="group relative aspect-[4/5] overflow-hidden rounded-[24px] bg-tint shadow-[0_14px_42px_rgba(48,40,35,0.05)]">
+            <Image
+                src={item.image_src}
+                alt={item.title?.trim() || `Mẫu nail hot trend ${index + 1} tại Serpente Nail Room`}
+                fill
+                sizes="(max-width: 1023px) 50vw, 33vw"
+                className="motion-image object-cover transition-transform duration-500 group-hover:scale-[1.025]"
+            />
+            <span className="absolute right-3 top-3 rounded-full bg-black/45 px-3 py-1 text-[10px] font-semibold text-white">Ảnh minh họa</span>
+            <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent px-5 pb-5 pt-20 text-white">
+                <div className="flex items-end justify-between gap-4">
+                    <div className="min-w-0">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em]">Hot trend</span>
+                        {item.title?.trim() ? (
+                            <p className="mt-2 line-clamp-2 max-w-[24ch] font-serif text-xl leading-tight">
+                                {item.title}
+                            </p>
+                        ) : null}
+                        {instagramPostUrl ? (
+                            <p className="mt-3 text-[11px] font-semibold">
+                                Xem bài trên Instagram{" "}
+                                <span className="ml-1 inline-block transition-transform group-hover:translate-x-1">↗</span>
+                            </p>
+                        ) : null}
+                    </div>
+                </div>
+            </figcaption>
+        </figure>
+    );
+
+    return (
+        <a
+            href={instagramPostUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="focus-ring block rounded-[24px]"
+            aria-label={`Mở mẫu nail hot trend ${index + 1} trên Instagram`}
+        >
+            {card}
+        </a>
+    );
+}
+
+function HotTrendCarousel({ items }: { items: InstagramTrendItem[] }) {
+    const [emblaRef, emblaApi, selectedIndex] = useAutoCarousel(items.length, 4600);
+
+    return (
+        <div className="relative mt-8">
+            <div ref={emblaRef} className="overflow-hidden">
+                <div className="-ml-4 flex">
+                    {items.map((item, index) => (
+                        <div
+                            key={item.id}
+                            className="min-w-0 shrink-0 grow-0 basis-full pl-4 lg:basis-1/3"
+                        >
+                            <HotTrendCard item={item} index={index} />
+                        </div>
+                    ))}
+                </div>
+            </div>
+            <CarouselDots
+                count={items.length}
+                selectedIndex={selectedIndex}
+                onSelect={(index) => emblaApi?.scrollTo(index)}
+            />
+        </div>
+    );
+}
+
+function ReviewCard({ review }: { review: CustomerReview }) {
+    return (
+        <article className="flex h-[250px] w-full min-w-0 flex-col overflow-hidden rounded-[22px] border border-line bg-surface px-4 pb-3 pt-4 shadow-[0_14px_42px_rgba(48,40,35,0.04)] sm:h-[270px] sm:px-5 sm:pt-5">
+            <blockquote className="min-h-0 min-w-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain whitespace-pre-line break-words [overflow-wrap:anywhere] pr-2 font-serif text-[19px] leading-[1.3] tracking-[-0.015em] sm:text-[21px]">
+                “{review.content}”
+            </blockquote>
+            <div className="mt-2 flex min-w-0 shrink-0 items-center justify-between gap-2 border-t border-line pt-2">
+                <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-semibold sm:text-sm">{review.display_name}</p>
+                    <p className="mt-0.5 truncate text-[9px] uppercase tracking-[0.1em] text-muted">{review.source}</p>
+                </div>
+                <a
+                    href={review.source_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="focus-ring min-w-0 shrink-0 max-w-[48%] text-right text-[11px] font-semibold leading-4 text-accent [overflow-wrap:anywhere] hover:underline"
+                >
+                    Xem đánh giá ↗
+                </a>
+            </div>
+        </article>
+    );
+}
+
+function ReviewsCarousel({ reviews }: { reviews: CustomerReview[] }) {
+    const [emblaRef, emblaApi, selectedIndex] = useAutoCarousel(reviews.length, 7200);
+
+    return (
+        <div className="relative mt-8">
+            <div ref={emblaRef} className="overflow-hidden">
+                <div className="-ml-4 flex">
+                    {reviews.map((review) => (
+                        <div
+                            key={review.id}
+                            className="flex min-w-0 shrink-0 grow-0 basis-full pl-4 lg:basis-1/3"
+                        >
+                            <ReviewCard review={review} />
+                        </div>
+                    ))}
+                </div>
+            </div>
+            <CarouselDots
+                count={reviews.length}
+                selectedIndex={selectedIndex}
+                onSelect={(index) => emblaApi?.scrollTo(index)}
+            />
+        </div>
+    );
+}
+
+
+type StudioDetail = { eyebrow: string; title: string; body: string };
+
+function DetailsCarousel({ details }: { details: StudioDetail[] }) {
+    // A static row needs no scrolling controls. Embla supplies a single snap when
+    // all the cards fit the available container width; narrower layouts have more.
+    const [autoplay] = useState(() =>
+        Autoplay({
+            delay: 6200,
+            playOnInit: false,
+            stopOnInteraction: false,
+            stopOnMouseEnter: true,
+            stopOnLastSnap: false,
+        })
+    );
+    const [emblaRef, emblaApi] = useEmblaCarousel(
+        { loop: details.length > 1, align: "start", containScroll: "trimSnaps", slidesToScroll: 1 },
+        [autoplay]
+    );
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [snapCount, setSnapCount] = useState(1);
+
+    useEffect(() => {
+        if (!emblaApi) return;
+
+        const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const sync = () => {
+            const count = emblaApi.scrollSnapList().length;
+            setSnapCount(count);
+            setSelectedIndex(emblaApi.selectedScrollSnap());
+
+            // Avoid autoplay when the whole row already fits or motion is reduced.
+            if (count <= 1 || reducedMotion.matches) autoplay.stop();
+            else autoplay.play();
+        };
+
+        sync();
+        emblaApi.on("select", sync);
+        emblaApi.on("reInit", sync);
+        reducedMotion.addEventListener("change", sync);
+        return () => {
+            emblaApi.off("select", sync);
+            emblaApi.off("reInit", sync);
+            reducedMotion.removeEventListener("change", sync);
+            autoplay.stop();
+        };
+    }, [autoplay, emblaApi]);
+
+    return (
+        <div className="mt-8">
+            <div ref={emblaRef} className="detail-carousel-viewport overflow-hidden">
+                <div className="-ml-4 flex">
+                    {details.map((item) => (
+                        <div key={item.title} className="detail-carousel-slide flex min-w-0 shrink-0 grow-0 pl-4">
+                            <article className="flex h-full w-full min-w-0 flex-col rounded-[22px] border border-line bg-surface p-[clamp(1rem,2.4vw,1.75rem)]">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">{item.eyebrow}</p>
+                                <h3 className="fluid-card-title mt-4 font-serif">{item.title}</h3>
+                                <p className="mt-3 break-words text-sm leading-6 text-muted">{item.body}</p>
+                            </article>
+                        </div>
+                    ))}
+                </div>
+            </div>
+            <CarouselDots
+                count={snapCount}
+                selectedIndex={selectedIndex}
+                onSelect={(index) => emblaApi?.scrollTo(index)}
+            />
+        </div>
+    );
+}
+
+export function HomeShowcase() {
+    const { salonContent: resolvedContent, contentLoading, contentError } = useBranch();
+
+    if (!resolvedContent) {
+        return (
+            <section className="border-t border-line">
+                <div className="site-shell py-14 lg:py-20">
+                    <p className="text-sm text-muted">{contentLoading ? "Đang tải thông tin chi nhánh…" : contentError || "Thông tin của Serpente đang được cập nhật."}</p>
+                </div>
+            </section>
+        );
+    }
+
+    const trendItems = [...resolvedContent.instagram_showcase].sort((a, b) => a.sort_order - b.sort_order);
+    const reviews = resolvedContent.customer_reviews;
+    const instagramUrl = getInstagramUrl(resolvedContent.instagram_handle);
+    const mapsUrl = getMapsUrl(resolvedContent.google_maps_url, resolvedContent.google_maps_location);
+
+    const details = [
+        resolvedContent.has_refreshments
+            ? {
+                  eyebrow: "Tại tiệm",
+                  title: "Có bánh và đồ uống",
+                  body: "Bạn có thể dùng bánh và đồ uống trong lúc làm móng.",
+              }
+            : null,
+        resolvedContent.has_warranty && resolvedContent.warranty_days
+            ? {
+                  eyebrow: "Sau khi làm móng",
+                  title: `Bảo hành ${resolvedContent.warranty_days} ngày`,
+                  body: `Serpente áp dụng chính sách bảo hành móng trong ${resolvedContent.warranty_days} ngày.`,
+              }
+            : null,
+        resolvedContent.instagram_handle
+            ? {
+                  eyebrow: "Theo dõi Instagram",
+                  title: `@${resolvedContent.instagram_handle.replace(/^@/, "")}`,
+                  body: "Mẫu móng mới và thông tin từ tiệm được cập nhật trên Instagram.",
+              }
+            : null,
+    ].filter((item): item is NonNullable<typeof item> => item !== null);
+
+    return (
+        <>
+            {trendItems.length > 0 ? (
+                <section className="border-t border-line">
+                    <div className="site-shell py-14 lg:py-20">
+                        <div className="flex flex-wrap items-end justify-between gap-4">
+                            <div>
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
+                                    Hot trend
+                                </p>
+                                <h2 className="fluid-section-title mt-3 max-w-3xl font-serif tracking-[-0.025em]">
+                                    Mẫu nail đang được yêu thích
+                                </h2>
+                            </div>
+                            {instagramUrl ? (
+                                <a
+                                    href={instagramUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="focus-ring group w-fit rounded-sm text-xs font-semibold text-accent"
+                                >
+                                    @{resolvedContent.instagram_handle}{" "}
+                                    <span className="ml-2 inline-block transition-transform duration-300 group-hover:translate-x-1">
+                                        →
+                                    </span>
+                                </a>
+                            ) : null}
+                        </div>
+
+                        <HotTrendCarousel items={trendItems} />
+                    </div>
+                </section>
+            ) : null}
+
+            {details.length > 0 ? (
+                <section className="border-t border-line">
+                    <div className="site-shell py-14 lg:py-20">
+                        <div className="max-w-3xl">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">Một vài điều về tiệm</p>
+                            <h2 className="fluid-section-title mt-3 font-serif tracking-[-0.025em]">
+                                Để buổi làm móng thoải mái hơn
+                            </h2>
+                        </div>
+
+                        <DetailsCarousel details={details} />
+                    </div>
+                </section>
+            ) : null}
+
+            {reviews.length > 0 ? (
+                <section className="border-t border-line">
+                    <div className="site-shell py-14 lg:py-20">
+                        <div className="flex flex-wrap items-end justify-between gap-4">
+                            <div>
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">Đánh giá từ khách hàng</p>
+                                <h2 className="fluid-section-title mt-3 font-serif tracking-[-0.025em]">
+                                    Khách đã ghé Serpente nói gì?
+                                </h2>
+                            </div>
+                            {mapsUrl ? (
+                                <a
+                                    href={mapsUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="focus-ring rounded-sm text-xs font-semibold text-accent hover:underline"
+                                >
+                                    Mở Google Maps ↗
+                                </a>
+                            ) : null}
+                        </div>
+
+                        <ReviewsCarousel reviews={reviews} />
+                    </div>
+                </section>
+            ) : null}
+        </>
+    );
+}

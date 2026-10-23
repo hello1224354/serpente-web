@@ -1,0 +1,386 @@
+@import "tailwindcss";
+
+:root {
+    --background: #f6f3ee;
+    --foreground: #302823;
+    --muted: #70645b;
+    --accent: #986a58;
+    --line: #ddd4ca;
+    --surface: #ffffff;
+    --tint: #eee3dc;
+    --dark: #2d2723;
+
+    --font-ui: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --font-display: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-cream: var(--background);
+    --color-ink: var(--foreground);
+    --color-muted: var(--muted);
+    --color-accent: var(--accent);
+    --color-line: var(--line);
+    --color-surface: var(--surface);
+    --color-tint: var(--tint);
+    --color-studio-dark: var(--dark);
+
+    --font-sans: var(--font-ui);
+    --font-serif: var(--font-display);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+h1,
+h2,
+h3 {
+    overflow-wrap: break-word;
+    text-wrap: pretty;
+}
+
+body {
+    margin: 0;
+    min-width: 320px;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-ui);
+    text-rendering: optimizeLegibility;
+    font-kerning: normal;
+}
+
+.site-shell {
+    /* Fluid gutters use the actual available width, not device-specific offsets. */
+    width: min(calc(100% - clamp(1.5rem, 5vw, 5rem)), 100rem);
+    min-width: 0;
+    margin-inline: auto;
+}
+
+/* A persistent contact control belongs to the viewport, not page grid. */
+.instagram-contact-dock {
+    position: fixed;
+    right: clamp(0.75rem, 2.5vw, 1.75rem);
+    bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+    z-index: 40;
+}
+
+/* The contact row has exactly two fields. Auto-fit plus a full-row item
+   retained an unused implicit/explicit track on wide tablet layouts. */
+.booking-contact-section {
+    container: booking-contact / inline-size;
+}
+
+.booking-contact-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+}
+
+.booking-contact-phone {
+    min-width: 0;
+}
+
+@container booking-contact (min-width: 34rem) {
+    .booking-contact-fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .booking-contact-phone {
+        grid-column: 1 / -1;
+    }
+}
+
+/* Let card count follow the container's available space, not a viewport breakpoint. */
+.fluid-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
+    gap: clamp(0.875rem, 1.75vw, 1.25rem);
+}
+
+/* Card density follows available content width rather than a device model. */
+.detail-carousel-viewport {
+    container-type: inline-size;
+}
+
+.detail-carousel-slide {
+    flex-basis: 100%;
+}
+
+@container (min-width: 42rem) {
+    .detail-carousel-slide {
+        flex-basis: 50%;
+    }
+}
+
+@container (min-width: 66rem) {
+    .detail-carousel-slide {
+        flex-basis: 33.333333%;
+    }
+}
+
+.fluid-section-title {
+    font-size: clamp(1.9rem, 3.6vw, 3.125rem);
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.fluid-card-title {
+    font-size: clamp(1.4rem, 2.6vw, 2.125rem);
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+button,
+a,
+input,
+textarea,
+select {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button,
+select {
+    font: inherit;
+}
+
+a,
+button {
+    transition:
+        color 220ms ease,
+        background-color 220ms ease,
+        border-color 220ms ease,
+        opacity 220ms ease,
+        transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 220ms ease;
+}
+
+button:not(:disabled):active {
+    transform: scale(0.985);
+}
+
+input,
+textarea,
+select {
+    transition:
+        border-color 220ms ease,
+        background-color 220ms ease,
+        box-shadow 220ms ease,
+        opacity 220ms ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    box-shadow: 0 0 0 4px rgba(152, 106, 88, 0.08);
+}
+
+::selection {
+    background: #dcc8bd;
+    color: var(--foreground);
+}
+
+.focus-ring:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+.hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+@keyframes route-fade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes soft-rise {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes card-rise {
+    from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.992);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes image-reveal {
+    from {
+        opacity: 0;
+        transform: scale(1.025);
+        filter: saturate(0.92);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+        filter: saturate(1);
+    }
+}
+
+@keyframes menu-pop {
+    from {
+        opacity: 0;
+        transform: translateY(-7px) scale(0.985);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 180% 0;
+    }
+    100% {
+        background-position: -80% 0;
+    }
+}
+
+.route-transition {
+    animation: route-fade 280ms ease-out both;
+}
+
+.route-transition > section {
+    animation: soft-rise 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.route-transition > section:nth-child(2) {
+    animation-delay: 60ms;
+}
+
+.route-transition > section:nth-child(3) {
+    animation-delay: 110ms;
+}
+
+.route-transition > section:nth-child(4) {
+    animation-delay: 150ms;
+}
+
+.motion-card {
+    transition:
+        transform 360ms cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 360ms ease,
+        border-color 260ms ease,
+        background-color 260ms ease;
+    will-change: transform;
+}
+
+.motion-surface {
+    transition:
+        transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 320ms ease,
+        border-color 260ms ease;
+}
+
+.card-enter {
+    animation: card-rise 520ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.motion-image {
+    animation: image-reveal 680ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    transition:
+        transform 650ms cubic-bezier(0.16, 1, 0.3, 1),
+        filter 450ms ease,
+        opacity 450ms ease;
+}
+
+.motion-menu {
+    transform-origin: top right;
+    animation: menu-pop 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.skeleton {
+    background:
+        linear-gradient(
+            100deg,
+            rgba(255, 255, 255, 0.45) 20%,
+            rgba(238, 227, 220, 0.92) 38%,
+            rgba(255, 255, 255, 0.62) 52%,
+            rgba(238, 227, 220, 0.92) 70%
+        );
+    background-size: 220% 100%;
+    animation: shimmer 1.45s ease-in-out infinite;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .motion-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(152, 106, 88, 0.34);
+        box-shadow: 0 18px 42px rgba(48, 40, 35, 0.09);
+    }
+
+    .motion-surface:hover {
+        border-color: rgba(152, 106, 88, 0.28);
+        box-shadow: 0 12px 32px rgba(48, 40, 35, 0.055);
+    }
+}
+
+.site-modal {
+    margin: auto;
+    color: var(--foreground);
+}
+
+.site-modal::backdrop {
+    background: rgba(33, 28, 25, 0.55);
+    backdrop-filter: blur(2px);
+}
+
+@keyframes booking-success-backdrop-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes booking-success-rise {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.booking-success-dialog[open] {
+    animation: booking-success-rise 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .booking-success-dialog {
+        animation: none;
+    }
+}
