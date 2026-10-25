@@ -1,14 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { services as catalog } from "@/data/catalog";
+import type { Service } from "@/lib/api";
 import { decorateService, formatServicePrice } from "@/lib/studio-data";
 import { useBranch } from "@/components/branch/BranchProvider";
 
-export function ServicesCatalogue() {
+export function ServicesCatalogue({ catalog }: { catalog: Service[] }) {
     const { selectedBranchId } = useBranch();
     const [activeCategory, setActiveCategory] = useState("Tất cả");
-    const services = useMemo(() => catalog.filter(s => s.branch_id === selectedBranchId).map(decorateService), [selectedBranchId]);
+    const services = useMemo(() => catalog.filter(s => s.branch_id === selectedBranchId).map(decorateService), [catalog, selectedBranchId]);
     const categories = useMemo(() => ["Tất cả", ...new Set(services.map(s => s.category?.trim()).filter((s): s is string => Boolean(s)))], [services]);
     const visibleServices = activeCategory === "Tất cả" ? services : services.filter(s => s.category === activeCategory);
     return (
