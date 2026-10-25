@@ -7,6 +7,7 @@ import { InstagramContact } from "@/components/layout/InstagramContact";
 import { RouteMotion } from "@/components/layout/RouteMotion";
 import { BranchProvider } from "@/components/branch/BranchProvider";
 import { SITE_ORIGIN } from "@/lib/site-url";
+import { getCatalog } from "@/lib/cms";
 
 export const metadata: Metadata = {
     metadataBase: new URL(SITE_ORIGIN),
@@ -22,11 +23,12 @@ export const metadata: Metadata = {
     },
 };
 export const viewport: Viewport = { themeColor: "#f6f3ee", colorScheme: "light" };
-export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+    const catalog = await getCatalog();
     return (
         <html lang="vi" className="h-full antialiased">
             <body className="flex min-h-screen flex-col bg-cream text-ink">
-                <BranchProvider>
+                <BranchProvider branches={catalog.branches} salonContents={catalog.salonContents}>
                     <Header />
                     <div className="relative grid flex-1">
                         <div className="col-start-1 row-start-1 flex min-w-0 flex-col">
