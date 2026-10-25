@@ -206,7 +206,7 @@ export function CurrentOffers({ offers, instagramHandle }: CurrentOffersProps) {
                                         sizes="(max-width: 1023px) 100vw, 50vw"
                                         className="motion-image object-cover"
                                     />
-                                    <span className="absolute bottom-3 right-3 rounded-full bg-black/50 px-3 py-1 text-[10px] font-semibold text-white">Ảnh minh họa</span>
+                                    
                                 </div>
                             </div>
                         </article>
