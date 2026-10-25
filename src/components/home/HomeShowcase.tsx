@@ -105,7 +105,7 @@ function HotTrendCard({ item, index }: { item: InstagramTrendItem; index: number
                 sizes="(max-width: 1023px) 50vw, 33vw"
                 className="motion-image object-cover transition-transform duration-500 group-hover:scale-[1.025]"
             />
-            <span className="absolute right-3 top-3 rounded-full bg-black/45 px-3 py-1 text-[10px] font-semibold text-white">Ảnh minh họa</span>
+            
             <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent px-5 pb-5 pt-20 text-white">
                 <div className="flex items-end justify-between gap-4">
                     <div className="min-w-0">
