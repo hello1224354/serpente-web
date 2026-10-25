@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { HomeSections } from "@/components/home/HomeSections";
-import { offers } from "@/data/catalog";
+import { getCatalog } from "@/lib/cms";
 import type { Offer as OfferCard } from "@/components/home/CurrentOffers";
 
-export const dynamic = "force-static";
+export const revalidate = 60;
 
 export const metadata: Metadata = {
     title: "Serpente Nail Room",
@@ -16,7 +16,8 @@ function localDate(value: string) {
     return day && month && year ? `${day}/${month}/${year}` : value;
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+    const { offers } = await getCatalog();
     const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
     const currentOffers: OfferCard[] = offers.filter(o => o.start_date <= today && o.end_date >= today).map(o => ({
         name: o.name,
