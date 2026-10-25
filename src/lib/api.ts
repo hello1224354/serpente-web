@@ -12,7 +12,6 @@ export type Service = {
     id: string;
     branch_id: number;
     name: string;
-    display_name?: string | null;
     category?: string | null;
     description?: string | null;
     price: number;

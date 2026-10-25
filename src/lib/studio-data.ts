@@ -1,14 +1,5 @@
 import type { Service } from "@/lib/api";
 
-export type StudioService = Service;
-
-export function decorateService(service: Service): StudioService {
-    return {
-        ...service,
-        name: service.display_name?.trim() || service.name,
-    };
-}
-
 export function formatVnd(value: number) {
     return new Intl.NumberFormat("vi-VN").format(value);
 }

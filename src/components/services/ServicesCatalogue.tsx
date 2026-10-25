@@ -2,13 +2,13 @@
 
 import { useMemo, useState } from "react";
 import type { Service } from "@/lib/api";
-import { decorateService, formatServicePrice } from "@/lib/studio-data";
+import { formatServicePrice } from "@/lib/studio-data";
 import { useBranch } from "@/components/branch/BranchProvider";
 
 export function ServicesCatalogue({ catalog }: { catalog: Service[] }) {
     const { selectedBranchId } = useBranch();
     const [activeCategory, setActiveCategory] = useState("Tất cả");
-    const services = useMemo(() => catalog.filter(s => s.branch_id === selectedBranchId).map(decorateService), [catalog, selectedBranchId]);
+    const services = useMemo(() => catalog.filter(s => s.branch_id === selectedBranchId), [catalog, selectedBranchId]);
     const categories = useMemo(() => ["Tất cả", ...new Set(services.map(s => s.category?.trim()).filter((s): s is string => Boolean(s)))], [services]);
     const visibleServices = activeCategory === "Tất cả" ? services : services.filter(s => s.category === activeCategory);
     return (
@@ -33,7 +33,7 @@ export function ServicesCatalogue({ catalog }: { catalog: Service[] }) {
                         <article key={service.id} className={`flex min-w-0 flex-wrap items-center gap-4 px-[clamp(1.25rem,2.5vw,1.75rem)] py-5 ${index ? "border-t border-line" : ""}`}>
                             <div className="min-w-0 flex-[1_1_16rem]">
                                 <span className="text-[9px] font-semibold uppercase tracking-[0.14em] text-accent">{service.category || "Dịch vụ"}</span>
-                                <h2 className="mt-2 min-w-0 break-words font-serif text-[clamp(1.35rem,2.5vw,1.9rem)] leading-[1.3]">{service.display_name || service.name}</h2>
+                                <h2 className="mt-2 min-w-0 break-words font-serif text-[clamp(1.35rem,2.5vw,1.9rem)] leading-[1.3]">{service.name}</h2>
                                 {service.description ? <p className="mt-2 whitespace-pre-line text-xs leading-5 text-muted">{service.description}</p> : null}
                             </div>
                             <div className="min-w-0 flex-[0_1_12rem] text-left sm:ml-auto sm:text-right">

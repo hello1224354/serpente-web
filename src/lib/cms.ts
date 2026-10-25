@@ -67,7 +67,6 @@ function adapt(payload: Item): CmsCatalog {
         id: stringValue(s.serviceId, stringValue(s._id)),
         branch_id: branchId,
         name: stringValue(s.name),
-        display_name: nullableString(s.displayName, stringValue(s.name)),
         category: nullableString(s.category, null),
         description: nullableString(s.description, null),
         price: Math.max(0, numberValue(s.price, 0)),
