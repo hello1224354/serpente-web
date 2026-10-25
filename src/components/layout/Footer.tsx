@@ -75,7 +75,6 @@ function FooterDetailIcon({ name, className = "size-[18px]" }: { name: FooterDet
     );
 }
 
-// On tablets and phones, use native mail and dial apps rather than a web-only service.
 function prefersNativeContactApps() {
     const userAgent = navigator.userAgent;
     return /Android|iPhone|iPad|iPod|Mobile|Tablet|Silk|Kindle/i.test(userAgent)
@@ -90,7 +89,6 @@ async function copyContactText(value: string) {
             return true;
         }
     } catch {
-        // Clipboard permission may be unavailable; try the selection fallback.
     }
 
     const input = document.createElement("textarea");

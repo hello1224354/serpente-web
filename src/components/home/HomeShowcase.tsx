@@ -38,8 +38,6 @@ function useAutoCarousel(itemCount: number, delay: number) {
     useEffect(() => {
         if (!emblaApi) return;
 
-        // Initial selectedIndex is 0, matching Embla's initial snap.
-        // Subsequent changes are synchronized through Embla's events.
         emblaApi.on("select", syncSelectedIndex);
         emblaApi.on("reInit", syncSelectedIndex);
 
@@ -60,7 +58,6 @@ function useAutoCarousel(itemCount: number, delay: number) {
         };
     }, [autoplay, emblaApi, itemCount, syncSelectedIndex]);
 
-    // Return a tuple so the callback ref is not grouped with React render state.
     return [emblaRef, emblaApi, selectedIndex] as const;
 }
 
@@ -220,8 +217,6 @@ function ReviewsCarousel({ reviews }: { reviews: CustomerReview[] }) {
 type StudioDetail = { eyebrow: string; title: string; body: string };
 
 function DetailsCarousel({ details }: { details: StudioDetail[] }) {
-    // A static row needs no scrolling controls. Embla supplies a single snap when
-    // all the cards fit the available container width; narrower layouts have more.
     const [autoplay] = useState(() =>
         Autoplay({
             delay: 6200,
@@ -247,7 +242,6 @@ function DetailsCarousel({ details }: { details: StudioDetail[] }) {
             setSnapCount(count);
             setSelectedIndex(emblaApi.selectedScrollSnap());
 
-            // Avoid autoplay when the whole row already fits or motion is reduced.
             if (count <= 1 || reducedMotion.matches) autoplay.stop();
             else autoplay.play();
         };

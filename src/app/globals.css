@@ -56,13 +56,12 @@ body {
 }
 
 .site-shell {
-    /* Fluid gutters use the actual available width, not device-specific offsets. */
+    
     width: min(calc(100% - clamp(1.5rem, 5vw, 5rem)), 100rem);
     min-width: 0;
     margin-inline: auto;
 }
 
-/* A persistent contact control belongs to the viewport, not page grid. */
 .instagram-contact-dock {
     position: fixed;
     right: clamp(0.75rem, 2.5vw, 1.75rem);
@@ -70,8 +69,6 @@ body {
     z-index: 40;
 }
 
-/* The contact row has exactly two fields. Auto-fit plus a full-row item
-   retained an unused implicit/explicit track on wide tablet layouts. */
 .booking-contact-section {
     container: booking-contact / inline-size;
 }
@@ -96,14 +93,12 @@ body {
     }
 }
 
-/* Let card count follow the container's available space, not a viewport breakpoint. */
 .fluid-card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
     gap: clamp(0.875rem, 1.75vw, 1.25rem);
 }
 
-/* Card density follows available content width rather than a device model. */
 .detail-carousel-viewport {
     container-type: inline-size;
 }

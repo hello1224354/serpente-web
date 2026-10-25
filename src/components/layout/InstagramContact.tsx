@@ -9,7 +9,6 @@ export function InstagramContact() {
     const handle = salonContent?.instagram_handle?.replace(/^@/, "").trim();
     const messageUrl = handle ? `https://ig.me/m/${encodeURIComponent(handle)}` : null;
 
-    // Keep the operational dashboard free of customer-facing contact controls.
     if (pathname.startsWith("/admin") || !messageUrl) return null;
 
     return (

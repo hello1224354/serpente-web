@@ -51,8 +51,6 @@ export function CurrentOffers({ offers, instagramHandle }: CurrentOffersProps) {
 
         const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
         const syncMotionPreference = () => {
-            // Embla does not initialize Autoplay when there is only one scroll snap.
-            // Calling play() in that state can throw inside the plugin.
             if (mediaQuery.matches || emblaApi.scrollSnapList().length <= 1) autoplay.stop();
             else autoplay.play();
         };
