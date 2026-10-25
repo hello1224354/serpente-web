@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import type { Branch, SalonContent } from "@/lib/api";
-import { branches, salonContents } from "@/data/catalog";
 
 type BranchContextValue = {
     branches: Branch[];
@@ -17,7 +16,7 @@ type BranchContextValue = {
 };
 const BranchContext = createContext<BranchContextValue | null>(null);
 
-export function BranchProvider({ children }: { children: ReactNode }) {
+export function BranchProvider({ children, branches, salonContents }: { children: ReactNode; branches: Branch[]; salonContents: Record<number, SalonContent> }) {
     const [selectedBranchId, setSelectedBranch] = useState<number | null>(branches[0]?.id ?? null);
     const selectedBranch = useMemo(() => branches.find(x => x.id === selectedBranchId) ?? null, [selectedBranchId]);
     const setSelectedBranchId = (id: number) => {
