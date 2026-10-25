@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-    images: { remotePatterns: [{ protocol: "https", hostname: "drive.google.com", pathname: "/thumbnail" }] },
+    images: { remotePatterns: [{ protocol: "https", hostname: "drive.google.com", pathname: "/thumbnail" }, { protocol: "https", hostname: "cdn.sanity.io", pathname: "/images/**" }] },
     async redirects() {
         return [{ source: "/book", destination: "https://booksalon.kiotviet.vn/serpentenailroom", permanent: false }];
     },
