@@ -1,9 +1,21 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import type { Service } from "@/lib/api";
 import { formatServicePrice } from "@/lib/studio-data";
 import { useBranch } from "@/components/branch/BranchProvider";
+
+const categoryIcons: Record<string, string> = {
+    "Chăm sóc chân": "/service-icons/01-cham-soc-chan.png",
+    "Nail art & trang trí": "/service-icons/02-nail-art-trang-tri.png",
+    "Sơn nền cao cấp": "/service-icons/03-son-nen-cao-cap.png",
+    "Chăm sóc da tay": "/service-icons/04-cham-soc-da-tay.png",
+    "Đắp gel (Buildergel)": "/service-icons/05-dap-gel-buildergel.png",
+    "Combo": "/service-icons/06-combo.png",
+    "Dịch vụ khác": "/service-icons/07-dich-vu-khac.png",
+    "Phụ thu sơn nền": "/service-icons/08-phu-thu-son-nen.png",
+};
 
 const collator = new Intl.Collator("vi", { sensitivity: "base", numeric: true });
 const validOrder = (value: number | null | undefined) =>
@@ -65,10 +77,16 @@ export function ServicesCatalogue({ catalog }: { catalog: Service[] }) {
                         <section key={group.category} aria-label={group.category} className={groupIndex ? "border-t border-line" : ""}>
                             <div className="flex min-w-0 items-center justify-between gap-4 bg-tint px-[clamp(1.25rem,2.5vw,1.75rem)] py-5">
                                 <div className="flex min-w-0 items-center gap-3">
-                                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-5 shrink-0 text-accent">
-                                        <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10H3V7Z" />
-                                        <path d="M3 11h18" />
-                                    </svg>
+                                    {categoryIcons[group.category] ? (
+                                        <Image
+                                            src={categoryIcons[group.category]}
+                                            alt=""
+                                            width={44}
+                                            height={44}
+                                            className="size-11 shrink-0 object-contain"
+                                            aria-hidden="true"
+                                        />
+                                    ) : null}
                                     <h2 className="min-w-0 font-serif text-[clamp(1.45rem,2.7vw,1.9rem)] leading-[1.25]">{group.category}</h2>
                                 </div>
                                 <p className="shrink-0 text-xs text-muted">{group.items.length} dịch vụ</p>
