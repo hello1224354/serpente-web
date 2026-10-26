@@ -17,6 +17,13 @@ const categoryIcons: Record<string, string> = {
     "Phụ thu sơn nền": "/service-icons/08-phu-thu-son-nen.png",
 };
 
+const normalizeCategoryName = (name: string) =>
+    name.trim().replace(/\s+/g, " ").toLocaleLowerCase("vi");
+
+const normalizedCategoryIcons = new Map(
+    Object.entries(categoryIcons).map(([name, path]) => [normalizeCategoryName(name), path])
+);
+
 const collator = new Intl.Collator("vi", { sensitivity: "base", numeric: true });
 const validOrder = (value: number | null | undefined) =>
     typeof value === "number" && Number.isFinite(value) && value > 0 ? value : null;
@@ -44,6 +51,7 @@ export function ServicesCatalogue({ catalog }: { catalog: Service[] }) {
         });
         return Array.from(byCategory, ([category, items]) => ({
             category,
+            icon: normalizedCategoryIcons.get(normalizeCategoryName(category)),
             items: items.sort(compareServices),
         })).sort((a, b) => collator.compare(a.category, b.category));
     }, [catalog, selectedBranchId]);
@@ -77,9 +85,9 @@ export function ServicesCatalogue({ catalog }: { catalog: Service[] }) {
                         <section key={group.category} aria-label={group.category} className={groupIndex ? "border-t border-line" : ""}>
                             <div className="flex min-w-0 items-center justify-between gap-4 bg-tint px-[clamp(1.25rem,2.5vw,1.75rem)] py-5">
                                 <div className="flex min-w-0 items-center gap-3">
-                                    {categoryIcons[group.category] ? (
+                                    {group.icon ? (
                                         <Image
-                                            src={categoryIcons[group.category]}
+                                            src={group.icon}
                                             alt=""
                                             width={44}
                                             height={44}
