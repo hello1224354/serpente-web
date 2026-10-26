@@ -18,6 +18,7 @@ export type Service = {
     price_min?: number | null;
     price_max?: number | null;
     duration_minutes: number | null;
+    sort_order?: number | null;
 };
 
 export type Offer = {

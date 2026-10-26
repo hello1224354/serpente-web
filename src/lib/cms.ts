@@ -6,7 +6,7 @@ export type CmsCatalog = { branches: Branch[]; services: Service[]; offers: Offe
 
 const QUERY = `{
   "settings": *[_type == "salonSettings" && _id == "salonSettings"][0],
-  "services": *[_type == "salonService" && !(_id in path("drafts.**"))] | order(sortOrder asc, _id asc),
+  "services": *[_type == "salonService" && !(_id in path("drafts.**"))] | order(category asc, name asc, _id asc),
   "offers": *[_type == "salonOffer" && !(_id in path("drafts.**"))] | order(sortOrder asc, _id asc){..., "imageUrl": image.asset->url},
   "trends": *[_type == "salonTrend" && !(_id in path("drafts.**"))] | order(sortOrder asc, _id asc){..., "imageUrl": image.asset->url},
   "reviews": *[_type == "salonReview" && !(_id in path("drafts.**"))] | order(sortOrder asc, _id asc)
@@ -73,6 +73,7 @@ function adapt(payload: Item): CmsCatalog {
         price_min: Math.max(0, numberValue(s.priceMin, numberValue(s.price, 0))),
         price_max: Math.max(0, numberValue(s.priceMax, numberValue(s.price, 0))),
         duration_minutes: typeof s.durationMinutes === "number" ? numberValue(s.durationMinutes, 0) : null,
+        sort_order: typeof s.sortOrder === "number" ? s.sortOrder : null,
     })) : (settings ? [] : defaultServices);
 
     const offerDocs = Array.isArray(payload.offers) ? payload.offers.filter(isItem) : [];
