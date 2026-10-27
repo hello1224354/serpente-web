@@ -38,7 +38,7 @@ function compareServices(a: Service, b: Service) {
     return collator.compare(a.name, b.name) || collator.compare(a.id, b.id);
 }
 
-export function ServicesCatalogue({ catalog }: { catalog: Service[] }) {
+export function ServicesCatalogue({ catalog, serviceCategoryOrder }: { catalog: Service[]; serviceCategoryOrder: string[] }) {
     const { selectedBranchId } = useBranch();
     const [activeCategory, setActiveCategory] = useState("Tất cả");
 
@@ -50,12 +50,19 @@ export function ServicesCatalogue({ catalog }: { catalog: Service[] }) {
             items.push(service);
             byCategory.set(category, items);
         });
-        return Array.from(byCategory, ([category, items]) => ({
+        const remaining = new Map(Array.from(byCategory, ([category, items]) => [category, {
             category,
             icon: normalizedCategoryIcons.get(normalizeCategoryName(category)),
             items: items.sort(compareServices),
-        })).sort((a, b) => collator.compare(a.category, b.category));
-    }, [catalog, selectedBranchId]);
+        }] as const));
+        const ordered = serviceCategoryOrder.flatMap(category => {
+            const group = remaining.get(category);
+            if (!group) return [];
+            remaining.delete(category);
+            return [group];
+        });
+        return [...ordered, ...remaining.values()];
+    }, [catalog, selectedBranchId, serviceCategoryOrder]);
 
     const categories = ["Tất cả", ...groups.map(group => group.category)];
     const visibleGroups = activeCategory === "Tất cả"

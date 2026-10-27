@@ -2,11 +2,11 @@ import type { Branch, Offer, SalonContent, Service, InstagramTrendItem, Customer
 import { branches as defaultBranches, offers as defaultOffers, salonContents as defaultContent, services as defaultServices } from "@/data/catalog";
 
 type Item = Record<string, unknown>;
-export type CmsCatalog = { branches: Branch[]; services: Service[]; offers: Offer[]; salonContents: Record<number, SalonContent> };
+export type CmsCatalog = { branches: Branch[]; services: Service[]; offers: Offer[]; salonContents: Record<number, SalonContent>; serviceCategoryOrder: string[] };
 
 const QUERY = `{
   "settings": *[_type == "salonSettings" && _id == "salonSettings"][0],
-  "services": *[_type == "salonService" && !(_id in path("drafts.**"))] | order(category asc, name asc, _id asc),
+  "services": *[_type == "salonService" && !(_id in path("drafts.**"))],
   "offers": *[_type == "salonOffer" && !(_id in path("drafts.**"))] | order(sortOrder asc, _id asc){..., "imageUrl": image.asset->url},
   "trends": *[_type == "salonTrend" && !(_id in path("drafts.**"))] | order(sortOrder asc, _id asc){..., "imageUrl": image.asset->url},
   "reviews": *[_type == "salonReview" && !(_id in path("drafts.**"))] | order(sortOrder asc, _id asc)
@@ -28,7 +28,7 @@ const imageUrl = (v: unknown, fallback: string) => {
     }
 };
 
-const fallback: CmsCatalog = { branches: defaultBranches, services: defaultServices, offers: defaultOffers, salonContents: defaultContent };
+const fallback: CmsCatalog = { branches: defaultBranches, services: defaultServices, offers: defaultOffers, salonContents: defaultContent, serviceCategoryOrder: [] };
 
 export async function getCatalog(): Promise<CmsCatalog> {
     const projectId = process.env.SANITY_PROJECT_ID?.trim() ?? "";
@@ -62,6 +62,9 @@ function adapt(payload: Item): CmsCatalog {
         opening_hours: nullableString(settings.branchHours, branch.opening_hours ?? null),
     }] : defaultBranches;
 
+    const serviceCategoryOrder = settings && Array.isArray(settings.serviceCategoryOrder)
+        ? settings.serviceCategoryOrder.filter((value): value is string => typeof value === "string")
+        : [];
     const serviceDocs = Array.isArray(payload.services) ? payload.services.filter(isItem) : [];
     const services: Service[] = serviceDocs.length ? serviceDocs.filter(s => typeof s.name === "string" && typeof s.price === "number" && Number.isFinite(s.price)).map(s => ({
         id: stringValue(s.serviceId, stringValue(s._id)),
@@ -128,5 +131,5 @@ function adapt(payload: Item): CmsCatalog {
         instagram_showcase: trends,
         customer_reviews: reviews,
     };
-    return { branches, services, offers, salonContents: { [branchId]: salon } };
+    return { branches, services, offers, salonContents: { [branchId]: salon }, serviceCategoryOrder };
 }
