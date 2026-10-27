@@ -8,6 +8,7 @@ import { useBranch } from "@/components/branch/BranchProvider";
 
 const categoryIcons: Record<string, string> = {
     "Chăm sóc chân": "/service-icons/01-cham-soc-chan.png",
+    "Chăm sóc cơ bản": "/service-icons/09-cham-soc-co-ban.png",
     "Nail art & trang trí": "/service-icons/02-nail-art-trang-tri.png",
     "Sơn nền cao cấp": "/service-icons/03-son-nen-cao-cap.png",
     "Chăm sóc da tay": "/service-icons/04-cham-soc-da-tay.png",
