@@ -98,7 +98,6 @@ export function ServicesCatalogue({ catalog }: { catalog: Service[] }) {
                                     ) : null}
                                     <h2 className="min-w-0 font-serif text-[clamp(1.45rem,2.7vw,1.9rem)] leading-[1.25]">{group.category}</h2>
                                 </div>
-                                <p className="shrink-0 text-xs text-muted">{group.items.length} dịch vụ</p>
                             </div>
                             <div>
                                 {group.items.map((service, index) => (
